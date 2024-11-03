@@ -11,3 +11,4 @@
 #### Тестовые данные представлены файлом ISIC2018_Task3_Test_Images.zip, содержащим 1511 RGB изображений, и таблицей эталонных значений ISIC2018_Task3_Test_GroundTruth.csv.
 #### Все изображения хранятся в формате JPEG и имеют разрешение 450 на 600 пикселей.
 #### Ссылка на [GDrive с датасетом](https://drive.google.com/drive/folders/1WQygMca124eDnTUZjhDGIuSEFcypUEEn?usp=sharing)
+#### Ссылка на [источник данных](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/DBW86T)
