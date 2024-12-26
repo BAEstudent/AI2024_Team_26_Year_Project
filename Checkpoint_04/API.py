@@ -12,6 +12,8 @@ from tqdm import tqdm
 import asyncio
 import timm
 import copy
+from io import BytesIO
+import base64
 
 
 app = FastAPI(
@@ -23,8 +25,8 @@ MODEL_PATH = "Checkpoint_03_Baseline/trained_model_state_L_480_white.pt"
 
 
 class UploadRequest(BaseModel):
-    X: List[List[List[List[float]]]]
-    y: List[float]
+    X: List[str]
+    y: List[int]
 
 
 class Hyperparameters(BaseModel):
@@ -56,6 +58,8 @@ class MessageResponse(BaseModel):
 class MetricsResponse(BaseModel):
     Train_Accuracy: float
     Loss: List[float]
+    lr: float
+    n_epochs: int
 
 
 class MetricsResponses(BaseModel):
@@ -64,7 +68,7 @@ class MetricsResponses(BaseModel):
 
 class PredictRequest(BaseModel):
     id: str
-    X: List[List[List[float]]]
+    X: str
 
 
 class PredictResponse(BaseModel):
@@ -192,7 +196,20 @@ y_user_processed = None
 async def upload(request: UploadRequest):
     global X_user, y_user, X_user_processed, y_user_processed
     request = request.model_dump()
-    X_user, y_user = np.array(request['X']), np.array(request['y'])
+
+    # Decode 1 image
+    decoded_bytes = base64.b64decode(request['X'][0])
+    image = Image.open(BytesIO(decoded_bytes))
+    images_np = np.asarray([np.asarray(image)])
+
+    # Decode the rest of the images
+    if len(request['X']) > 1:
+        for bytes_image in request['X'][1:]:
+            decoded_bytes = base64.b64decode(bytes_image)
+            image = np.asarray([Image.open(BytesIO(decoded_bytes))])
+            images_np = np.append(images_np, image, axis=0)
+
+    X_user, y_user = images_np, np.array(request['y'])
     X_user_processed, y_user_processed = await transform_data(X_user, y_user)
     return MessageResponse(message="Your data has been successfully uploaded.")
 
@@ -252,6 +269,8 @@ async def fit(request: FitRequest):
         print(f"Epoch [{epoch+1}/{n_epochs}], Loss: {epoch_loss:.4f}, Accuracy: {epoch_acc:.2f}%")
 
     metrics['Train_Accuracy'] = epoch_acc
+    metrics['lr'] = lr
+    metrics['n_epochs'] = n_epochs
     models.update({request['config']['id']: (new_model, metrics)})
     return MessageResponse(message=f"""Model {request['config']['id']} trained and saved""")
 
@@ -292,10 +311,15 @@ async def predict(request: PredictRequest):
     # Реализуйте инференс загруженной модели
     request = request.model_dump()
     model = request['id']
-    X_user_inference, y_user_inference = np.array([request['X']]), np.zeros(1)
+
+    decoded_bytes = base64.b64decode(request['X'])
+    image = Image.open(BytesIO(decoded_bytes))
+    images_np = np.asarray([np.asarray(image)])
+
+    X_user_inference, y_user_inference = images_np, np.zeros(1)
     X_user_inference_processed, y_user_inference_processed = await transform_data(X_user_inference, y_user_inference)
 
-    inference_dataset = FeatureDataset(X_user_processed, y_user_processed)
+    inference_dataset = FeatureDataset(X_user_inference_processed, y_user_inference_processed)
     inference_loader = DataLoader(inference_dataset, batch_size=1, shuffle=False)
 
     for features, labels in inference_loader:
