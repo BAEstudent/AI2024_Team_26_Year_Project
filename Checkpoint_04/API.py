@@ -58,6 +58,8 @@ class MessageResponse(BaseModel):
 class MetricsResponse(BaseModel):
     Train_Accuracy: float
     Loss: List[float]
+    lr: float
+    n_epochs: int
 
 
 class MetricsResponses(BaseModel):
@@ -204,8 +206,8 @@ async def upload(request: UploadRequest):
     if len(request['X']) > 1:
         for bytes_image in request['X'][1:]:
             decoded_bytes = base64.b64decode(bytes_image)
-            image = Image.open(BytesIO(decoded_bytes))
-            images_np = np.append(images_np, np.asarray(image), axis=0)
+            image = np.asarray([Image.open(BytesIO(decoded_bytes))])
+            images_np = np.append(images_np, image, axis=0)
 
     X_user, y_user = images_np, np.array(request['y'])
     X_user_processed, y_user_processed = await transform_data(X_user, y_user)
@@ -267,6 +269,8 @@ async def fit(request: FitRequest):
         print(f"Epoch [{epoch+1}/{n_epochs}], Loss: {epoch_loss:.4f}, Accuracy: {epoch_acc:.2f}%")
 
     metrics['Train_Accuracy'] = epoch_acc
+    metrics['lr'] = lr
+    metrics['n_epochs'] = n_epochs
     models.update({request['config']['id']: (new_model, metrics)})
     return MessageResponse(message=f"""Model {request['config']['id']} trained and saved""")
 
