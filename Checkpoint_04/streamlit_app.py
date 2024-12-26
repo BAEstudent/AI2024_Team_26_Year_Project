@@ -70,7 +70,7 @@ if uploaded_zip is not None:
                     "X": encoded_images,
                     "y": labels
                 }
-                
+
                 if st.button("Загрузить на сервер"):
                     response = requests.post(f"{BACKEND_URL}/upload", json=payload)
                     if response.status_code == 201:
@@ -78,8 +78,8 @@ if uploaded_zip is not None:
                     else:
                         st.error(f"Ошибка при загрузке данных. Код ошибки: {response.status_code}")
 
-# 3. Создание новой модели и выбор гиперпараметров
-st.header("3. Создание новой модели")
+# 2. Создание новой модели и выбор гиперпараметров
+st.header("2. Создание новой модели")
 
 model_id = st.text_input('Назовите модель')
 
@@ -102,8 +102,8 @@ if st.button("Создать и Обучить Модель"):
     else:
         st.error(f"Ошибка при создании модели. Код ошибки: {response.status_code}")
 
-# 4. Просмотр информации о модели и кривых обучения
-st.header("4. Информация о Модели и Кривые Обучения")
+# 3. Просмотр информации о модели и кривых обучения
+st.header("3. Информация о Модели и Кривые Обучения")
 
 # Initialize list_models to empty
 list_models = []
@@ -152,14 +152,6 @@ if st.session_state.list_models:
                             "model": selected_models[i]
                         })
                 all_loss_data.append(df_curve)
-                
-                # fig = px.line(
-                #     df_curve,
-                #     x="epoch",
-                #     y="train_loss",
-                #     title="Кривая Обучения",
-                # )
-                # st.plotly_chart(fig)
 
             if all_loss_data:
                 combined_df = pd.concat(all_loss_data, ignore_index=True)
@@ -188,66 +180,3 @@ if st.session_state.list_models:
 else:
     st.info("Нажмите 'Получить информацию о моделях', чтобы загрузить список моделей.")
 
-# # 5. Инференс с использованием ранее обученной модели
-# st.header("5. Инференс на Новых Данных")
-# if uploaded_file is not None:
-#     input_data = st.text_area("Введите данные для предсказания в формате JSON")
-#     if st.button("Предсказать"):
-#         try:
-#             input_json = json.loads(input_data)
-#             response = requests.post(f"{BACKEND_URL}/predict", json=input_json)
-#             if response.status_code == 200:
-#                 prediction = response.json()
-#                 st.write("Предсказание:", prediction)
-#             else:
-#                 st.error("Ошибка при выполнении предсказания.")
-#         except json.JSONDecodeError:
-#             st.error("Некорректный формат JSON.")
-
-# # 6. Сравнение нескольких экспериментов
-# st.header("6. Сравнение Экспериментов")
-# response = requests.get(f"{BACKEND_URL}/list_models")
-# if response.status_code == 200:
-#     models = response.json()
-#     selected_models = st.multiselect("Выберите модели для сравнения (до 5)", models, max_selections=5)
-    
-#     if selected_models:
-#         curves = {}
-#         for model in selected_models:
-#             metrics_response = requests.get(f"{BACKEND_URL}/get_metrics", params={"model": model})
-#             if metrics_response.status_code == 200:
-#                 metrics = metrics_response.json()
-#                 if "training_curve" in metrics:
-#                     curves[model] = metrics["training_curve"]
-        
-#         if curves:
-#             fig = px.line()
-#             for model, curve in curves.items():
-#                 df_curve = pd.DataFrame(curve)
-#                 fig.add_trace(px.line(df_curve, x="epoch", y="train_loss", name=f"{model} Train").data[0])
-#                 fig.add_trace(px.line(df_curve, x="epoch", y="val_loss", name=f"{model} Val").data[0])
-#             fig.update_layout(title="Сравнение Кривых Обучения", xaxis_title="Эпоха", yaxis_title="Потери")
-#             st.plotly_chart(fig)
-#         else:
-#             st.warning("Нет доступных кривых обучения для выбранных моделей.")
-# else:
-#     st.error("Не удалось получить список моделей.")
-
-# # 7. Интерактивные графики с Plotly уже реализованы выше
-
-# # Дополнительные функции: удаление моделей
-# st.header("Дополнительные Управления")
-# if st.button("Удалить все модели"):
-#     response = requests.post(f"{BACKEND_URL}/remove_all")
-#     if response.status_code == 200:
-#         st.success("Все модели удалены.")
-#     else:
-#         st.error("Ошибка при удалении моделей.")
-
-# model_to_remove = st.selectbox("Выберите модель для удаления", models if response.status_code == 200 else [])
-# if st.button("Удалить выбранную модель"):
-#     response = requests.post(f"{BACKEND_URL}/remove", json={"model": model_to_remove})
-#     if response.status_code == 200:
-#         st.success(f"Модель {model_to_remove} удалена.")
-#     else:
-#         st.error("Ошибка при удалении модели.")
