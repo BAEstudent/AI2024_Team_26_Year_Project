@@ -182,7 +182,7 @@ class FeatureDataset(Dataset):
 default_model = LogisticRegressionModel(92160, 7)
 default_model.load_state_dict(torch.load(MODEL_PATH, weights_only=True))
 default_model.to(device)
-models = {'default': default_model}
+models = {'default': (default_model, )}
 
 X_user = None
 y_user = None

@@ -6,8 +6,8 @@ import json
 import os
 import base64
 import zipfile
-from PIL import Image
 import numpy as np
+from PIL import Image
 
 # URL вашего backend сервера
 BACKEND_URL = "http://127.0.0.1:8000"
@@ -15,19 +15,24 @@ BACKEND_URL = "http://127.0.0.1:8000"
 if "list_models" not in st.session_state:
     st.session_state.list_models = []
 
+if "list_models_inference" not in st.session_state:
+    st.session_state.list_models_inference = []
+
 st.title("Машинное Обучение Сервис")
 
 # 1. Загрузка датасета
-# 1. Upload the ZIP file 
+# 1. Upload the ZIP file
 st.header("1. Загрузка Данных")
-uploaded_zip = st.file_uploader("Загрузите ZIP файл с фото формата jpg и файлом меток классов этих фото в формате csv с колонками pic_name и label.", type="zip")
+uploaded_zip = st.file_uploader("""Загрузите ZIP файл с фото формата jpg
+                                и файлом меток классов этих фото в формате
+                                csv с колонками pic_name и label.""", type="zip")
 
-if uploaded_zip is not None:    
+if uploaded_zip is not None:
     # Step 2: Extract ZIP content
     with zipfile.ZipFile(uploaded_zip, 'r') as zip_ref:
         zip_ref.extractall("uploaded_data")
         extracted_files = zip_ref.namelist()
-    
+
     st.write("Ваши данные:", extracted_files)
 
     # Step 3: Find images and the labels file
@@ -92,7 +97,7 @@ n_epochs = st.slider("Количество эпох", min_value=1, max_value=10,
 hyperparameters["n_epochs"] = n_epochs
 
 config = {'hyperparameters': hyperparameters, 'id': model_id}
-if st.button("Создать и Обучить Модель"):
+if st.button("Создать и обучить модель"):
     payload = {
         "config": config
     }
@@ -103,7 +108,7 @@ if st.button("Создать и Обучить Модель"):
         st.error(f"Ошибка при создании модели. Код ошибки: {response.status_code}")
 
 # 3. Просмотр информации о модели и кривых обучения
-st.header("3. Информация о Модели и Кривые Обучения")
+st.header("3. Информация о модели и кривые обучения")
 
 # Initialize list_models to empty
 list_models = []
@@ -155,7 +160,7 @@ if st.session_state.list_models:
 
             if all_loss_data:
                 combined_df = pd.concat(all_loss_data, ignore_index=True)
-                
+
                 # Plot all loss curves on one graph
                 fig = px.line(
                     combined_df,
@@ -163,14 +168,14 @@ if st.session_state.list_models:
                     y="train_loss",
                     color="model",
                     markers=True,
-                    title="Кривые Обучения для всех выбранных моделей",
+                    title="Кривые обучения для всех выбранных моделей",
                     labels={
                         "train_loss": "Train Loss",
                         "epoch": "Эпоха",
                         "model": "Модель"
                     }
                 )
-                
+
                 st.plotly_chart(fig, use_container_width=True)
 
         else:
@@ -180,3 +185,94 @@ if st.session_state.list_models:
 else:
     st.info("Нажмите 'Получить информацию о моделях', чтобы загрузить список моделей.")
 
+# 4. Инференс по обученной модели
+st.header("4. Инференс по обученной модели")
+
+list_models_inference = []
+
+# Button to fetch the model list
+if st.button("Начать Инференс"):
+    response = requests.get(f"{BACKEND_URL}/list_models")
+    if response.status_code == 200:
+        response_json = response.json()
+        message = response_json.get("message", "")
+        list_models_inference = message[40:].split(", ")
+        st.session_state.list_models_inference = list_models_inference
+    else:
+        st.error(f"Ошибка при получении списка моделей. Код: {response.status_code}")
+
+# Only show multiselect if we have a non-empty list of models
+if st.session_state.list_models_inference:
+    selected_model = st.selectbox("Выберите модель для предсказания", st.session_state.list_models_inference)
+
+    # Only proceed if the user has selected at least one model
+    if selected_model:
+        if selected_model in st.session_state.list_models_inference:
+            uploaded_jpg = st.file_uploader("""Загрузите jpg файл.""", type="jpg")
+            if uploaded_jpg:
+
+                upload_dir = "uploaded_data_inference"
+
+                # Create the directory if it doesn't exist
+                os.makedirs(upload_dir, exist_ok=True)
+
+                img_path = os.path.join("uploaded_data_inference", uploaded_jpg.name)
+
+                with open(img_path, 'wb') as image_file:
+                    image_file.write(uploaded_jpg.getbuffer())
+
+                img = Image.open(img_path)
+
+                # Convert the image to RGB (in case it's not)
+                img = img.convert("RGB")
+
+                # Create a Plotly Express figure
+                fig = px.imshow(img)
+
+                # Update layout to remove axes and margins for better visualization
+                fig.update_layout(
+                    xaxis_showgrid=False,
+                    yaxis_showgrid=False,
+                    xaxis_visible=False,
+                    yaxis_visible=False,
+                    margin=dict(l=0, r=0, t=0, b=0)
+                )
+
+                # Display the figure in Streamlit
+                st.plotly_chart(fig, use_container_width=True)
+
+                with open(img_path, 'rb') as image_file:
+                    encoded_bytes = base64.b64encode(image_file.read())
+                    encoded_string = encoded_bytes.decode('utf-8')
+
+                payload = {
+                            "id": selected_model,
+                            "X": encoded_string
+                        }
+
+                predict_response = requests.post(
+                    f"{BACKEND_URL}/predict",
+                    json=payload,
+                )
+                mapping_dict = {
+                    0: "Actinic keratosis / Bowen’s disease (intraepithelial carcinoma)",
+                    1: "Basal cell carcinoma",
+                    2: "Benign keratosis (solar lentigo / seborrheic keratosis / lichen planus-like keratosis)",
+                    3: "Dermatofibroma",
+                    4: "Melanoma",
+                    5: "Nevus",
+                    6: "Vascular lesion"
+                }
+                st.write(f"""The selected model predicts that it is
+                        {mapping_dict[predict_response.json()['y']]} on your photo.""")
+        else:
+            st.error("Модель не найдена.")
+# 5. Удалить все созданные модели
+st.header("5. Удалить все созданные модели")
+if st.button("Удалить все Ваши модели"):
+    predict_response = requests.delete(
+                    f"{BACKEND_URL}/remove_all"
+                )
+    st.session_state.list_models = []
+    st.session_state.list_models_inference = []
+    st.success("Все ваши модели успешно удалены!")
