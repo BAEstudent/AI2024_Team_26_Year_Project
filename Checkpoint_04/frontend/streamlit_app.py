@@ -10,7 +10,7 @@ import numpy as np
 from PIL import Image
 
 # URL вашего backend сервера
-BACKEND_URL = "http://127.0.0.1:8000"
+BACKEND_URL = "http://api:8000"
 
 if "list_models" not in st.session_state:
     st.session_state.list_models = []
