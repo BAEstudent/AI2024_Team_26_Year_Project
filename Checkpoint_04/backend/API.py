@@ -21,7 +21,7 @@ app = FastAPI(
     json_url="/docs.json",
 )
 
-MODEL_PATH = "Checkpoint_03_Baseline/trained_model_state_L_480_white.pt"
+MODEL_PATH = "trained_model_state_L_480_white.pt"
 
 
 class UploadRequest(BaseModel):
@@ -332,7 +332,7 @@ async def predict(request: PredictRequest):
 
 
 async def main():
-    uvicorn.run("API:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("API:app", host="0.0.0.0", port=8000, reload=True)
 
 if __name__ == "__main__":
     asyncio.run(main())
