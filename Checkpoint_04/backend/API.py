@@ -1,19 +1,19 @@
+from io import BytesIO
+import base64
+import copy
+import asyncio
+from http import HTTPStatus
+from typing import List, Tuple
 import uvicorn
 import numpy as np
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.utils.data import Dataset, DataLoader
 from fastapi import FastAPI
 from pydantic import BaseModel
-from http import HTTPStatus
-from typing import List
 from PIL import Image
 from tqdm import tqdm
-import asyncio
 import timm
-import copy
-from io import BytesIO
-import base64
 
 
 app = FastAPI(
@@ -94,7 +94,7 @@ transforms = timm.data.create_transform(**data_config, is_training=False)
 
 # Define a custom dataset that loads images and labels from NumPy arrays
 class NumpyDataset(Dataset):
-    def __init__(self, images_np, labels_np, transform=None):
+    def __init__(self, images_np: np.ndarray, labels_np: np.ndarray, transform=None):
         self.images_np = images_np
         self.labels_np = labels_np
         self.transform = transform
@@ -102,7 +102,7 @@ class NumpyDataset(Dataset):
     def __len__(self):
         return len(self.images_np)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, int]:
         # Convert one image from NumPy to a PIL Image
         # Make sure the dtype and shape are compatible (e.g., uint8, shape [H, W, C])
         img = self.images_np[idx]
@@ -120,7 +120,7 @@ class NumpyDataset(Dataset):
 
 
 @torch.no_grad()
-async def extract_features(images):
+async def extract_features(images: torch.Tensor) -> torch.Tensor:
     outputs = model(images)
     last_feature_map = outputs[-1]
     features = last_feature_map.view(last_feature_map.size(0), -1)
@@ -128,16 +128,16 @@ async def extract_features(images):
 
 
 class LogisticRegressionModel(nn.Module):
-    def __init__(self, input_size, num_classes):
-        super(LogisticRegressionModel, self).__init__()
+    def __init__(self, input_size: int, num_classes: int):
+        super().__init__()
         self.linear = nn.Linear(input_size, num_classes)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         out = self.linear(x)
         return out
 
 
-async def transform_data(images_np, labels_np):
+async def transform_data(images_np: np.ndarray, labels_np: np.ndarray) -> Tuple[torch.Tensor, torch.Tensor]:
     dataset = NumpyDataset(images_np, labels_np, transform=transforms)
     dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
 
@@ -168,14 +168,14 @@ async def transform_data(images_np, labels_np):
 
 
 class FeatureDataset(Dataset):
-    def __init__(self, features, labels):
+    def __init__(self, features: torch.Tensor, labels: torch.Tensor):
         self.features = features
         self.labels = labels
 
     def __len__(self):
         return self.features.size(0)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, int]:
         return self.features[idx], self.labels[idx]
 
 
@@ -310,7 +310,7 @@ async def list_models():
 async def predict(request: PredictRequest):
     # Реализуйте инференс загруженной модели
     request = request.model_dump()
-    model = request['id']
+    model_id = request['id']
 
     decoded_bytes = base64.b64decode(request['X'])
     image = Image.open(BytesIO(decoded_bytes))
@@ -324,7 +324,7 @@ async def predict(request: PredictRequest):
 
     for features, labels in inference_loader:
         features = features.to(device)
-        outputs = models[model][0](features)
+        outputs = models[model_id][0](features)
         _, predicted = torch.max(outputs.data, 1)
 
     label = predicted[0]
