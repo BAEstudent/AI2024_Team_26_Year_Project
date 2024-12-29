@@ -9,17 +9,55 @@ import numpy as np
 import torch
 from torch import nn
 from torch.utils.data import Dataset, DataLoader
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from PIL import Image
 from tqdm import tqdm
 import timm
+import logging
+from logging.handlers import TimedRotatingFileHandler
+from starlette.middleware.base import BaseHTTPMiddleware
+import json
 
 
 app = FastAPI(
     docs_url="/docs",
     json_url="/docs.json",
 )
+
+# Настройка логгера
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("uvicorn")  # Используем uvicorn логгер, чтобы соблюдать консистенцию\
+
+handler = TimedRotatingFileHandler(
+    'logs/logs.log', when="midnight", interval=1, backupCount=7
+)
+
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+
+logger.addHandler(handler)
+
+class LogRequestsMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        # Захватываем тело запроса (если нужно)
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
+
+        # Логирование запроса
+        logger.info(f"Request: {request.method} {request.url} - Body: {json.dumps(body)}")
+
+        # Получаем и возвращаем ответ
+        response = await call_next(request)
+
+        # Логирование ответа
+        logger.info(f"Response status: {response.status_code}")
+
+        return response
+
+app.add_middleware(LogRequestsMiddleware)
 
 MODEL_PATH = "trained_model_state_L_480_white.pt"
 
