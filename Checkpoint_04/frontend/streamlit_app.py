@@ -8,6 +8,19 @@ import plotly.express as px
 import requests
 import numpy as np
 from PIL import Image
+import logging
+from datetime import datetime
+from logging.handlers import TimedRotatingFileHandler
+
+handler = TimedRotatingFileHandler(
+    'logs/logs.log', when="midnight", interval=1, backupCount=7
+)
+
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+
+logger = logging.getLogger(__name__)
+logger.addHandler(handler)
 
 # URL вашего backend сервера
 BACKEND_URL = "http://api:8000"
@@ -41,22 +54,28 @@ if uploaded_zip is not None:
 
     if not labels_file:
         st.error("Файл с метками классов не найден.")
+        logger.error("Labels column is not found")
+        
     else:
         st.success(f"Файл меток классов: {labels_file[0]}")
+        logger.info('Label found successfully')
 
         # Step 4: Read and Parse Labels
         labels_path = os.path.join("uploaded_data", labels_file[0])
         labels_df = pd.read_csv(labels_path)
         if 'pic_name' not in labels_df.columns or 'label' not in labels_df.columns:
             st.error("CSV файл должен содержать колонки 'pic_name' и 'label'.")
+            logger.error('Incomplete CSV file')
         else:
             labels_df.sort_values(by='pic_name', inplace=True)
             labels = labels_df['label'].to_list()
 
             if len(labels) != len(image_files):
                 st.error("Количество фото не совпадает с количеством меток!")
+                logger.error('Labels and photos do not suit')
             else:
                 st.success("Количество фото совпадает с количеством меток.")
+                logger.info("Labels are complete")
 
                 sorted_images = sorted(image_files)
 
@@ -70,6 +89,7 @@ if uploaded_zip is not None:
                         encoded_images.append(encoded_string)
 
                 st.write(f"Закодировано {len(encoded_images)} изображений.")
+                logger.info(f'{len(encoded_images)} images successfully encoded')
 
                 payload = {
                     "X": encoded_images,
@@ -77,11 +97,13 @@ if uploaded_zip is not None:
                 }
 
                 if st.button("Загрузить на сервер"):
+                    logger.info("'Upload photo on server' button clicked")
                     response = requests.post(f"{BACKEND_URL}/upload", json=payload, timeout=60)
                     if response.status_code == 201:
                         st.success(json.loads(response.text)['message'])
                     else:
                         st.error(f"Ошибка при загрузке данных. Код ошибки: {response.status_code}")
+                        logger.error(f"Uploading error, code: {response.status_code}")
 
 # 2. Визуалиация EDA
 st.header("2. EDA")
@@ -96,6 +118,7 @@ def callback():
 
 
 if st.button('Показать EDA', on_click=callback) or st.session_state['eda_btn_clicked']:
+    logger.info("Show EDA button clicked")
     list_eda_categories = ['Метаданные', 'Изображения']
     st.write("""Ниже Вы можете посмотреть EDA по двум направлениям: метаданные
              и изобажения.""")
@@ -150,16 +173,18 @@ if lr:
         lr = float(lr)
     except ValueError:
         st.error("Неправильный формат learning rate")
+        logger.error('Incorrect format of learning rate')
 hyperparameters["lr"] = lr
 n_epochs = st.slider("Количество эпох", min_value=1, max_value=10, value=3)
 hyperparameters["n_epochs"] = n_epochs
 
 config = {'hyperparameters': hyperparameters, 'id': model_id}
 if st.button("Создать и обучить модель"):
-
+    logger.info('Create and train model button clicked')
     response = requests.get(f"{BACKEND_URL}/list_models", timeout=60)
     if not response.status_code == 200:
         st.error(f"Ошибка при получении списка моделей. Код: {response.status_code}")
+        logger.error(f'Model list get error, code: {response.status_code}')
     else:
         response_json = response.json()
         message = response_json.get("message", "")
@@ -169,6 +194,7 @@ if st.button("Создать и обучить модель"):
             st.error("Введите название новой модели")
         elif model_id in list_models:
             st.error("Модель с таким назанием уже существует")
+            logger.error('Duplicated name of model input')
         else:
             payload = {
                 "config": config
@@ -176,8 +202,10 @@ if st.button("Создать и обучить модель"):
             response = requests.post(f"{BACKEND_URL}/fit", json=payload, timeout=60)
             if response.status_code == 201:
                 st.success(json.loads(response.text)['message'])
+                logger.info(json.loads(response.text)['message'])
             else:
                 st.error(f"Ошибка при создании модели. Код ошибки: {response.status_code}")
+                logger.error(f'Model creation error, code: {response.status_code}')
 
 # 4. Просмотр информации о модели и кривых обучения
 st.header("4. Информация о модели и кривые обучения")
@@ -187,6 +215,7 @@ list_models = []
 
 # Button to fetch the model list
 if st.button("Получить информацию о моделях"):
+    logger.info('Get model info button clicked')
     response = requests.get(f"{BACKEND_URL}/list_models", timeout=60)
     if response.status_code == 200:
         response_json = response.json()
@@ -195,11 +224,13 @@ if st.button("Получить информацию о моделях"):
         if len(list_models) == 1 and not list_models[0]:
             list_models = []
             st.error("Нет доступных моделей")
+            logger.info('No available models to show info about')
         else:
             st.session_state.list_models = list_models
 
     else:
         st.error(f"Ошибка при получении списка моделей. Код: {response.status_code}")
+        logger.error(f'Get model info error, code: {response.status_code}')
 
 # Only show multiselect if we have a non-empty list of models
 if st.session_state.list_models:
@@ -253,10 +284,12 @@ if st.session_state.list_models:
 
         else:
             st.error("Не удалось получить метрики модели.")
+            logger.error("Cannot get model metrics")
     else:
         st.info("Пожалуйста, выберите хотя бы одну модель для просмотра метрик.")
 else:
     st.info("Нажмите 'Получить информацию о моделях', чтобы загрузить список моделей.")
+    logger.info('Get model info button showed')
 
 # 5. Инференс по обученной модели
 st.header("5. Инференс по обученной модели")
@@ -265,6 +298,7 @@ list_models_inference = []
 
 # Button to fetch the model list
 if st.button("Начать Инференс"):
+    logger.info('Model inference started')
     response = requests.get(f"{BACKEND_URL}/list_models", timeout=60)
     if response.status_code == 200:
         response_json = response.json()
@@ -273,6 +307,7 @@ if st.button("Начать Инференс"):
         st.session_state.list_models_inference = list_models_inference
     else:
         st.error(f"Ошибка при получении списка моделей. Код: {response.status_code}")
+        logger.error(f'Get model list error, code: {response.status_codeaa}')
 
 # Only show multiselect if we have a non-empty list of models
 if st.session_state.list_models_inference:
@@ -280,8 +315,10 @@ if st.session_state.list_models_inference:
 
     # Only proceed if the user has selected at least one model
     if selected_model:
+        logger.info('Model for predict selected')
         if selected_model in st.session_state.list_models_inference:
             uploaded_jpg = st.file_uploader("""Загрузите jpg файл.""", type="jpg")
+            logger.info('JPEG loader showed')
             if uploaded_jpg:
 
                 upload_dir = "uploaded_data_inference"
@@ -341,9 +378,11 @@ if st.session_state.list_models_inference:
                         {mapping_dict[predict_response.json()['y']]} on your photo.""")
         else:
             st.error("Модель не найдена.")
+            logger.error("Model is not found")
 # 6. Удалить все созданные модели
 st.header("6. Удалить все созданные модели")
 if st.button("Удалить все Ваши модели"):
+    logger.info('Delete all models button clicked')
     predict_response = requests.delete(
                     f"{BACKEND_URL}/remove_all",
                     timeout=60
@@ -351,3 +390,4 @@ if st.button("Удалить все Ваши модели"):
     st.session_state.list_models = []
     st.session_state.list_models_inference = []
     st.success("Все ваши модели успешно удалены!")
+    logger.info('Models are deleted')
