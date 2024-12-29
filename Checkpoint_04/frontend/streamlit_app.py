@@ -89,20 +89,28 @@ st.header("2. EDA")
 if "eda_btn_clicked" not in st.session_state:
     st.session_state['eda_btn_clicked'] = False
 
+
 def callback():
     # change state value
     st.session_state['eda_btn_clicked'] = True
 
+
 if st.button('Показать EDA', on_click=callback) or st.session_state['eda_btn_clicked']:
     list_eda_categories = ['Метаданные', 'Изображения']
     eda_category = st.selectbox("Выберите интересующий раздел EDA: ", list_eda_categories)
-    if eda_category=='Метаданные':
-            st.image("uploaded_data/eda_graphs/eda_cat_vars_dist.png", caption="")
-            st.image("uploaded_data/eda_graphs/eda_age_dist.png", caption="")
-            st.image("uploaded_data/eda_graphs/eda_cat_vars_dist.png", caption="")
+    if eda_category == 'Метаданные':
+        st.image("uploaded_data/eda_graphs/eda_cat_vars_dist.png", caption="")
+        st.image("uploaded_data/eda_graphs/eda_age_dist.png", caption="")
+        st.image("uploaded_data/eda_graphs/eda_cat_vars_dist.png", caption="")
     else:
-        st.image("uploaded_data/eda_graphs/eda_pixel_intens_dist.png", caption="Распределение интенсивности ЧБ пикселей")
-        st.image("uploaded_data/eda_graphs/eda_pixel_intens_dist_by_chan_by_class.png", caption="Распределение интенсивности RGB пикселей")
+        st.image(
+            "uploaded_data/eda_graphs/eda_pixel_intens_dist.png",
+            caption="Распределение интенсивности ЧБ пикселей"
+            )
+        st.image(
+            "uploaded_data/eda_graphs/eda_pixel_intens_dist_by_chan_by_class.png",
+            caption="Распределение интенсивности RGB пикселей"
+            )
 
 # 3. Создание новой модели и выбор гиперпараметров
 st.header("3. Создание новой модели")
