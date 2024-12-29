@@ -94,15 +94,27 @@ def callback():
     '''Change state value'''
     st.session_state['eda_btn_clicked'] = True
 
-
 if st.button('Показать EDA', on_click=callback) or st.session_state['eda_btn_clicked']:
     list_eda_categories = ['Метаданные', 'Изображения']
+    st.write("""Ниже Вы можете посмотреть EDA по двум направлениям: метаданные 
+             и изобажения.""")
     eda_category = st.selectbox("Выберите интересующий раздел EDA: ", list_eda_categories)
     if eda_category == 'Метаданные':
+        st.write("""В ходе анализа метаданных мы рассмотрели различные распределения
+                атрибутов с сделали соответсвующие визуализации, построили распределение
+                классов внутри датасета.""")
         st.image("uploaded_data/eda_graphs/eda_cat_vars_dist.png", caption="")
         st.image("uploaded_data/eda_graphs/eda_age_dist.png", caption="")
-        st.image("uploaded_data/eda_graphs/eda_cat_vars_dist.png", caption="")
+        st.image("uploaded_data/eda_graphs/eda_class_dist.png",
+                  caption="Распределение классов")
+        if st.button('Скрыть EDA'):
+            st.session_state['eda_btn_clicked'] = False
+            st.experimental_rerun()
     else:
+        st.write(""" В рамках численного анализа мы рассмотрели различные
+                распределения интенсивности пикселей по разным каналам
+                изображения, визуализировали \"среднее\" изображени по
+                классам.""")
         st.image(
             "uploaded_data/eda_graphs/eda_pixel_intens_dist.png",
             caption="Распределение интенсивности ЧБ пикселей"
@@ -111,6 +123,17 @@ if st.button('Показать EDA', on_click=callback) or st.session_state['eda
             "uploaded_data/eda_graphs/eda_pixel_intens_dist_by_chan_by_class.png",
             caption="Распределение интенсивности RGB пикселей"
             )
+        st.image(
+            "uploaded_data/eda_graphs/eda_mean_images_bw.png",
+            caption="\"Среднее\" ЧБ изображение по классам"
+            )
+        st.image(
+            "uploaded_data/eda_graphs/eda_mean_images_clr.png",
+            caption="\"Среднее\" цветное изображение по классам"
+            )
+        if st.button('Скрыть EDA'):
+            st.session_state['eda_btn_clicked'] = False
+            st.experimental_rerun()
 
 # 3. Создание новой модели и выбор гиперпараметров
 st.header("3. Создание новой модели")
