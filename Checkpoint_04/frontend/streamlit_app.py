@@ -1,11 +1,11 @@
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-import requests
 import json
 import os
 import base64
 import zipfile
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+import requests
 import numpy as np
 from PIL import Image
 
@@ -77,7 +77,7 @@ if uploaded_zip is not None:
                 }
 
                 if st.button("Загрузить на сервер"):
-                    response = requests.post(f"{BACKEND_URL}/upload", json=payload)
+                    response = requests.post(f"{BACKEND_URL}/upload", json=payload, timeout=60)
                     if response.status_code == 201:
                         st.success(json.loads(response.text)['message'])
                     else:
@@ -91,7 +91,7 @@ if "eda_btn_clicked" not in st.session_state:
 
 
 def callback():
-    # change state value
+    '''Change state value'''
     st.session_state['eda_btn_clicked'] = True
 
 
@@ -120,21 +120,38 @@ model_id = st.text_input('Назовите модель')
 hyperparameters = {}
 lr = st.text_input("Learning rate", value=0.00003)
 if lr:
-    lr = float(lr)
+    try:
+        lr = float(lr)
+    except ValueError:
+        st.error("Неправильный формат learning rate")
 hyperparameters["lr"] = lr
 n_epochs = st.slider("Количество эпох", min_value=1, max_value=10, value=3)
 hyperparameters["n_epochs"] = n_epochs
 
 config = {'hyperparameters': hyperparameters, 'id': model_id}
 if st.button("Создать и обучить модель"):
-    payload = {
-        "config": config
-    }
-    response = requests.post(f"{BACKEND_URL}/fit", json=payload)
-    if response.status_code == 201:
-        st.success(json.loads(response.text)['message'])
+
+    response = requests.get(f"{BACKEND_URL}/list_models", timeout=60)
+    if not response.status_code == 200:
+        st.error(f"Ошибка при получении списка моделей. Код: {response.status_code}")
     else:
-        st.error(f"Ошибка при создании модели. Код ошибки: {response.status_code}")
+        response_json = response.json()
+        message = response_json.get("message", "")
+        list_models = message[49:].split(", ")
+
+        if not model_id:
+            st.error("Введите название новой модели")
+        elif model_id in list_models:
+            st.error("Модель с таким назанием уже существует")
+        else:
+            payload = {
+                "config": config
+            }
+            response = requests.post(f"{BACKEND_URL}/fit", json=payload, timeout=60)
+            if response.status_code == 201:
+                st.success(json.loads(response.text)['message'])
+            else:
+                st.error(f"Ошибка при создании модели. Код ошибки: {response.status_code}")
 
 # 4. Просмотр информации о модели и кривых обучения
 st.header("4. Информация о модели и кривые обучения")
@@ -144,17 +161,17 @@ list_models = []
 
 # Button to fetch the model list
 if st.button("Получить информацию о моделях"):
-    response = requests.get(f"{BACKEND_URL}/list_models")
+    response = requests.get(f"{BACKEND_URL}/list_models", timeout=60)
     if response.status_code == 200:
         response_json = response.json()
         message = response_json.get("message", "")
         list_models = message[49:].split(", ")
-        st.session_state.list_models = list_models
-
-        # Optional: Handle case when list_models might be `['']`
-        # if the message is empty or incorrectly formatted
         if len(list_models) == 1 and not list_models[0]:
             list_models = []
+            st.error("Нет доступных моделей")
+        else:
+            st.session_state.list_models = list_models
+
     else:
         st.error(f"Ошибка при получении списка моделей. Код: {response.status_code}")
 
@@ -168,6 +185,7 @@ if st.session_state.list_models:
         metrics_response = requests.post(
             f"{BACKEND_URL}/get_metrics",
             json={"models": selected_models},
+            timeout=60
         )
 
         if metrics_response.status_code == 200:
@@ -221,7 +239,7 @@ list_models_inference = []
 
 # Button to fetch the model list
 if st.button("Начать Инференс"):
-    response = requests.get(f"{BACKEND_URL}/list_models")
+    response = requests.get(f"{BACKEND_URL}/list_models", timeout=60)
     if response.status_code == 200:
         response_json = response.json()
         message = response_json.get("message", "")
@@ -264,7 +282,7 @@ if st.session_state.list_models_inference:
                     yaxis_showgrid=False,
                     xaxis_visible=False,
                     yaxis_visible=False,
-                    margin=dict(l=0, r=0, t=0, b=0)
+                    margin={"l": 0, "r": 0, "t": 0, "b": 0}
                 )
 
                 # Display the figure in Streamlit
@@ -282,6 +300,7 @@ if st.session_state.list_models_inference:
                 predict_response = requests.post(
                     f"{BACKEND_URL}/predict",
                     json=payload,
+                    timeout=60
                 )
                 mapping_dict = {
                     0: "Actinic keratosis / Bowen’s disease (intraepithelial carcinoma)",
@@ -300,7 +319,8 @@ if st.session_state.list_models_inference:
 st.header("6. Удалить все созданные модели")
 if st.button("Удалить все Ваши модели"):
     predict_response = requests.delete(
-                    f"{BACKEND_URL}/remove_all"
+                    f"{BACKEND_URL}/remove_all",
+                    timeout=60
                 )
     st.session_state.list_models = []
     st.session_state.list_models_inference = []
