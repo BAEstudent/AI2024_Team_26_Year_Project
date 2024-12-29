@@ -1,0 +1,263 @@
+2024-12-30 00:05:14,723 - INFO - Started server process [13168]
+2024-12-30 00:05:14,723 - INFO - Waiting for application startup.
+2024-12-30 00:05:14,723 - INFO - Application startup complete.
+2024-12-30 00:05:26,119 - INFO - Request: GET http://localhost:8000/docs - Body: {}
+2024-12-30 00:05:26,120 - INFO - Response status: 200
+2024-12-30 00:05:26,225 - INFO - Request: GET http://localhost:8000/openapi.json - Body: {}
+2024-12-30 00:05:26,229 - INFO - Response status: 200
+2024-12-30 00:05:45,505 - INFO - Request: POST http://localhost:8000/upload - Body: {"X": ["string"], "y": [0]}
+2024-12-30 00:05:45,506 - ERROR - Exception in ASGI application
+  + Exception Group Traceback (most recent call last):
+  |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_utils.py", line 76, in collapse_excgroups
+  |     yield
+  |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\base.py", line 189, in __call__
+  |     response_sent.set()
+  |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\anyio\_backends\_asyncio.py", line 815, in __aexit__
+  |     raise BaseExceptionGroup(
+  | exceptiongroup.ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 403, in run_asgi
+    |     result = await app(  # type: ignore[func-returns-value]
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    |     return await self.app(scope, receive, send)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\fastapi\applications.py", line 1054, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\applications.py", line 113, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\errors.py", line 187, in __call__
+    |     raise exc
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\errors.py", line 165, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\base.py", line 189, in __call__
+    |     response_sent.set()
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\contextlib.py", line 137, in __exit__
+    |     self.gen.throw(typ, value, traceback)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\base.py", line 187, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |   File "c:\Users\Admin\AI Project\AI2024_Team_26_Year_Project\Checkpoint_04\backend\API.py", line 53, in dispatch
+    |     response = await call_next(request)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\base.py", line 163, in call_next
+    |     raise app_exc
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\base.py", line 149, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\exceptions.py", line 62, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 715, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 735, in app
+    |     await route.handle(scope, receive, send)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 288, in handle
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 76, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 73, in app
+    |     response = await f(request)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\fastapi\routing.py", line 301, in app
+    |     raw_response = await run_endpoint_function(
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\fastapi\routing.py", line 212, in run_endpoint_function
+    |     return await dependant.call(**values)
+    |   File "c:\Users\Admin\AI Project\AI2024_Team_26_Year_Project\Checkpoint_04\backend\API.py", line 239, in upload
+    |     decoded_bytes = base64.b64decode(request['X'][0])
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\base64.py", line 87, in b64decode
+    |     return binascii.a2b_base64(s)
+    | binascii.Error: Incorrect padding
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 403, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\fastapi\applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\errors.py", line 187, in __call__
+    raise exc
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\base.py", line 189, in __call__
+    response_sent.set()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\contextlib.py", line 137, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\base.py", line 187, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "c:\Users\Admin\AI Project\AI2024_Team_26_Year_Project\Checkpoint_04\backend\API.py", line 53, in dispatch
+    response = await call_next(request)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\base.py", line 163, in call_next
+    raise app_exc
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\base.py", line 149, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 735, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 73, in app
+    response = await f(request)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\fastapi\routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\fastapi\routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+  File "c:\Users\Admin\AI Project\AI2024_Team_26_Year_Project\Checkpoint_04\backend\API.py", line 239, in upload
+    decoded_bytes = base64.b64decode(request['X'][0])
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\base64.py", line 87, in b64decode
+    return binascii.a2b_base64(s)
+binascii.Error: Incorrect padding
+2024-12-30 00:05:47,983 - INFO - Request: POST http://localhost:8000/upload - Body: {"X": ["string"], "y": [0]}
+2024-12-30 00:05:47,984 - ERROR - Exception in ASGI application
+  + Exception Group Traceback (most recent call last):
+  |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_utils.py", line 76, in collapse_excgroups
+  |     yield
+  |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\base.py", line 189, in __call__
+  |     response_sent.set()
+  |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\anyio\_backends\_asyncio.py", line 815, in __aexit__
+  |     raise BaseExceptionGroup(
+  | exceptiongroup.ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 403, in run_asgi
+    |     result = await app(  # type: ignore[func-returns-value]
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    |     return await self.app(scope, receive, send)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\fastapi\applications.py", line 1054, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\applications.py", line 113, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\errors.py", line 187, in __call__
+    |     raise exc
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\errors.py", line 165, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\base.py", line 189, in __call__
+    |     response_sent.set()
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\contextlib.py", line 137, in __exit__
+    |     self.gen.throw(typ, value, traceback)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_utils.py", line 82, in collapse_excgroups
+    |     raise exc
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\base.py", line 187, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |   File "c:\Users\Admin\AI Project\AI2024_Team_26_Year_Project\Checkpoint_04\backend\API.py", line 53, in dispatch
+    |     response = await call_next(request)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\base.py", line 163, in call_next
+    |     raise app_exc
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\base.py", line 149, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\exceptions.py", line 62, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 715, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 735, in app
+    |     await route.handle(scope, receive, send)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 288, in handle
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 76, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 73, in app
+    |     response = await f(request)
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\fastapi\routing.py", line 301, in app
+    |     raw_response = await run_endpoint_function(
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\fastapi\routing.py", line 212, in run_endpoint_function
+    |     return await dependant.call(**values)
+    |   File "c:\Users\Admin\AI Project\AI2024_Team_26_Year_Project\Checkpoint_04\backend\API.py", line 239, in upload
+    |     decoded_bytes = base64.b64decode(request['X'][0])
+    |   File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\base64.py", line 87, in b64decode
+    |     return binascii.a2b_base64(s)
+    | binascii.Error: Incorrect padding
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\uvicorn\protocols\http\h11_impl.py", line 403, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\fastapi\applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\errors.py", line 187, in __call__
+    raise exc
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\base.py", line 189, in __call__
+    response_sent.set()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\contextlib.py", line 137, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_utils.py", line 82, in collapse_excgroups
+    raise exc
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\base.py", line 187, in __call__
+    response = await self.dispatch_func(request, call_next)
+  File "c:\Users\Admin\AI Project\AI2024_Team_26_Year_Project\Checkpoint_04\backend\API.py", line 53, in dispatch
+    response = await call_next(request)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\base.py", line 163, in call_next
+    raise app_exc
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\base.py", line 149, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\middleware\exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 735, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\starlette\routing.py", line 73, in app
+    response = await f(request)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\fastapi\routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\site-packages\fastapi\routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+  File "c:\Users\Admin\AI Project\AI2024_Team_26_Year_Project\Checkpoint_04\backend\API.py", line 239, in upload
+    decoded_bytes = base64.b64decode(request['X'][0])
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python39\lib\base64.py", line 87, in b64decode
+    return binascii.a2b_base64(s)
+binascii.Error: Incorrect padding
+2024-12-30 00:05:54,661 - INFO - Request: GET http://localhost:8000/list_models - Body: {}
+2024-12-30 00:05:54,662 - INFO - Response status: 200
