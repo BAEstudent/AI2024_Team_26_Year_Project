@@ -83,8 +83,29 @@ if uploaded_zip is not None:
                     else:
                         st.error(f"Ошибка при загрузке данных. Код ошибки: {response.status_code}")
 
-# 2. Создание новой модели и выбор гиперпараметров
-st.header("2. Создание новой модели")
+# 2. Визуалиация EDA
+st.header("2. EDA")
+
+if "eda_btn_clicked" not in st.session_state:
+    st.session_state['eda_btn_clicked'] = False
+
+def callback():
+    # change state value
+    st.session_state['eda_btn_clicked'] = True
+
+if st.button('Показать EDA', on_click=callback) or st.session_state['eda_btn_clicked']:
+    list_eda_categories = ['Метаданные', 'Изображения']
+    eda_category = st.selectbox("Выберите интересующий раздел EDA: ", list_eda_categories)
+    if eda_category=='Метаданные':
+            st.image("uploaded_data/eda_graphs/eda_cat_vars_dist.png", caption="")
+            st.image("uploaded_data/eda_graphs/eda_age_dist.png", caption="")
+            st.image("uploaded_data/eda_graphs/eda_cat_vars_dist.png", caption="")
+    else:
+        st.image("uploaded_data/eda_graphs/eda_pixel_intens_dist.png", caption="Распределение интенсивности ЧБ пикселей")
+        st.image("uploaded_data/eda_graphs/eda_pixel_intens_dist_by_chan_by_class.png", caption="Распределение интенсивности RGB пикселей")
+
+# 3. Создание новой модели и выбор гиперпараметров
+st.header("3. Создание новой модели")
 
 model_id = st.text_input('Назовите модель')
 
@@ -107,8 +128,8 @@ if st.button("Создать и обучить модель"):
     else:
         st.error(f"Ошибка при создании модели. Код ошибки: {response.status_code}")
 
-# 3. Просмотр информации о модели и кривых обучения
-st.header("3. Информация о модели и кривые обучения")
+# 4. Просмотр информации о модели и кривых обучения
+st.header("4. Информация о модели и кривые обучения")
 
 # Initialize list_models to empty
 list_models = []
@@ -185,8 +206,8 @@ if st.session_state.list_models:
 else:
     st.info("Нажмите 'Получить информацию о моделях', чтобы загрузить список моделей.")
 
-# 4. Инференс по обученной модели
-st.header("4. Инференс по обученной модели")
+# 5. Инференс по обученной модели
+st.header("5. Инференс по обученной модели")
 
 list_models_inference = []
 
@@ -267,8 +288,8 @@ if st.session_state.list_models_inference:
                         {mapping_dict[predict_response.json()['y']]} on your photo.""")
         else:
             st.error("Модель не найдена.")
-# 5. Удалить все созданные модели
-st.header("5. Удалить все созданные модели")
+# 6. Удалить все созданные модели
+st.header("6. Удалить все созданные модели")
 if st.button("Удалить все Ваши модели"):
     predict_response = requests.delete(
                     f"{BACKEND_URL}/remove_all"

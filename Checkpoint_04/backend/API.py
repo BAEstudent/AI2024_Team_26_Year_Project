@@ -21,7 +21,7 @@ app = FastAPI(
     json_url="/docs.json",
 )
 
-MODEL_PATH = "trained_model_state_L_480_white.pt"
+MODEL_PATH = "C:/Users/kyuda/AI_2026/AI2024_Team_26_Year_Project/Checkpoint_04/backend/trained_model_state_L_480_white.pt"
 
 
 class UploadRequest(BaseModel):
