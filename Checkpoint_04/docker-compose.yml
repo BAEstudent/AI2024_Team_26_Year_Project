@@ -9,6 +9,8 @@ services:
       - "8501:8501"
     networks:
       - my-bridge
+    volumes:
+      - ./frontend/logs/:/usr/src/app/logs/
 
   api:
     build:
@@ -18,6 +20,9 @@ services:
       - "8000:8000"
     networks:
       - my-bridge
+    volumes:
+      - ./backend/logs/:/usr/src/app/logs/
+
 
 networks:
   my-bridge:
