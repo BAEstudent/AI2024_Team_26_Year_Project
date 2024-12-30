@@ -4,6 +4,9 @@ import copy
 import asyncio
 from http import HTTPStatus
 from typing import List, Tuple
+import logging
+from logging.handlers import TimedRotatingFileHandler
+import json
 import uvicorn
 import numpy as np
 import torch
@@ -14,10 +17,7 @@ from pydantic import BaseModel
 from PIL import Image
 from tqdm import tqdm
 import timm
-import logging
-from logging.handlers import TimedRotatingFileHandler
 from starlette.middleware.base import BaseHTTPMiddleware
-import json
 
 
 app = FastAPI(
@@ -38,8 +38,12 @@ handler.setFormatter(formatter)
 
 logger.addHandler(handler)
 
+
 class LogRequestsMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        '''
+        Прокидывает логгер в FastAPI
+        '''
         # Захватываем тело запроса (если нужно)
         try:
             body = await request.json()
@@ -47,15 +51,16 @@ class LogRequestsMiddleware(BaseHTTPMiddleware):
             body = {}
 
         # Логирование запроса
-        logger.info(f"Request: {request.method} {request.url} - Body: {json.dumps(body)}")
+        logger.info("Request: %s  %s  - Body: %s", request.method, request.url, json.dumps(body))
 
         # Получаем и возвращаем ответ
         response = await call_next(request)
 
         # Логирование ответа
-        logger.info(f"Response status: {response.status_code}")
+        logger.info("Response status: %s", response.status_code)
 
         return response
+
 
 app.add_middleware(LogRequestsMiddleware)
 
@@ -159,6 +164,9 @@ class NumpyDataset(Dataset):
 
 @torch.no_grad()
 async def extract_features(images: torch.Tensor) -> torch.Tensor:
+    '''
+    Достает признаки из тензоров
+    '''
     outputs = model(images)
     last_feature_map = outputs[-1]
     features = last_feature_map.view(last_feature_map.size(0), -1)
@@ -167,15 +175,24 @@ async def extract_features(images: torch.Tensor) -> torch.Tensor:
 
 class LogisticRegressionModel(nn.Module):
     def __init__(self, input_size: int, num_classes: int):
+        '''
+        Инициализация объекта класса
+        '''
         super().__init__()
         self.linear = nn.Linear(input_size, num_classes)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        '''
+        Forward pass регрессии
+        '''
         out = self.linear(x)
         return out
 
 
 async def transform_data(images_np: np.ndarray, labels_np: np.ndarray) -> Tuple[torch.Tensor, torch.Tensor]:
+    '''
+    Трансформация фото в тензоры
+    '''
     dataset = NumpyDataset(images_np, labels_np, transform=transforms)
     dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
 
@@ -232,6 +249,9 @@ y_user_processed = None
 # API endpoints
 @app.post("/upload", response_model=MessageResponse, status_code=HTTPStatus.CREATED)
 async def upload(request: UploadRequest):
+    '''
+    Ручка загрузки датасета
+    '''
     global X_user, y_user, X_user_processed, y_user_processed
     request = request.model_dump()
 
@@ -254,7 +274,9 @@ async def upload(request: UploadRequest):
 
 @app.post("/fit", response_model=MessageResponse, status_code=HTTPStatus.CREATED)
 async def fit(request: FitRequest):
-    global X_user_processed, y_user_processed
+    '''
+    Ручка обучения модели
+    '''
 
     request = request.model_dump()
 
@@ -315,37 +337,52 @@ async def fit(request: FitRequest):
 
 @app.post("/get_metrics", response_model=MetricsResponses)
 async def get_metrics(request: MetricsRequest):
+    '''
+    Ручка для получения информации о модели
+    '''
     request = request.model_dump()
     metrics_list = []
-    for model in request['models']:
-        metrics_list.append(models[model][1])
+    for model_id in request['models']:
+        metrics_list.append(models[model_id][1])
     return MetricsResponses(responses=metrics_list)
 
 
 @app.post("/remove", response_model=MessageResponse)
 async def remove(request: RemoveRequest):
+    '''
+    Удаление модели по имени
+    '''
     request = request.model_dump()
-    for model in request['models']:
-        if model != 'default':
-            models.pop(model)
+    for model_id in request['models']:
+        if model_id != 'default':
+            models.pop(model_id)
     return MessageResponse(message=f"""Models {", ".join(request['models'])} have been deleted.""")
 
 
 @app.delete("/remove_all", response_model=MessageResponse)
 async def remove_all():
-    for model in list(models.keys()):
-        if model != 'default':
-            models.pop(model)
+    '''
+    Удаление всех моделей
+    '''
+    for model_id in list(models.keys()):
+        if model_id != 'default':
+            models.pop(model_id)
     return MessageResponse(message='All models have been deleted.')
 
 
 @app.get("/list_models", response_model=MessageResponse)
 async def list_models():
+    '''
+    Получение списка моделей
+    '''
     return MessageResponse(message=f"""We currently have the following models: {", ".join(list(models.keys()))}""")
 
 
 @app.post("/predict", response_model=PredictResponse)
 async def predict(request: PredictRequest):
+    '''
+    Ручка для предсказания модели
+    '''
     # Реализуйте инференс загруженной модели
     request = request.model_dump()
     model_id = request['id']
@@ -360,7 +397,7 @@ async def predict(request: PredictRequest):
     inference_dataset = FeatureDataset(X_user_inference_processed, y_user_inference_processed)
     inference_loader = DataLoader(inference_dataset, batch_size=1, shuffle=False)
 
-    for features, labels in inference_loader:
+    for features, _ in inference_loader:
         features = features.to(device)
         outputs = models[model_id][0](features)
         _, predicted = torch.max(outputs.data, 1)
@@ -370,6 +407,9 @@ async def predict(request: PredictRequest):
 
 
 async def main():
+    '''
+    Поднимаем сервер
+    '''
     uvicorn.run("API:app", host="0.0.0.0", port=8000, reload=True)
 
 if __name__ == "__main__":
