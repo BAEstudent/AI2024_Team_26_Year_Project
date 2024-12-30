@@ -2,15 +2,14 @@ import json
 import os
 import base64
 import zipfile
+import logging
+from logging.handlers import TimedRotatingFileHandler
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import requests
 import numpy as np
 from PIL import Image
-import logging
-from datetime import datetime
-from logging.handlers import TimedRotatingFileHandler
 
 handler = TimedRotatingFileHandler(
     'logs/logs.log', when="midnight", interval=1, backupCount=7
@@ -55,7 +54,7 @@ if uploaded_zip is not None:
     if not labels_file:
         st.error("Файл с метками классов не найден.")
         logger.error("Labels column is not found")
-        
+
     else:
         st.success(f"Файл меток классов: {labels_file[0]}")
         logger.info('Label found successfully')
@@ -89,7 +88,7 @@ if uploaded_zip is not None:
                         encoded_images.append(encoded_string)
 
                 st.write(f"Закодировано {len(encoded_images)} изображений.")
-                logger.info(f'{len(encoded_images)} images successfully encoded')
+                logger.info('%s images successfully encoded', len(encoded_images))
 
                 payload = {
                     "X": encoded_images,
@@ -103,7 +102,7 @@ if uploaded_zip is not None:
                         st.success(json.loads(response.text)['message'])
                     else:
                         st.error(f"Ошибка при загрузке данных. Код ошибки: {response.status_code}")
-                        logger.error(f"Uploading error, code: {response.status_code}")
+                        logger.error("Uploading error, code: %s", response.status_code)
 
 # 2. Визуалиация EDA
 st.header("2. EDA")
@@ -134,6 +133,7 @@ if st.button('Показать EDA', on_click=callback) or st.session_state['eda
             caption="Распределение классов"
             )
         if st.button('Скрыть EDA'):
+            logger.info("Hide EDA button clicked")
             st.session_state['eda_btn_clicked'] = False
             st.experimental_rerun()
     else:
@@ -158,6 +158,7 @@ if st.button('Показать EDA', on_click=callback) or st.session_state['eda
             caption="\"Среднее\" цветное изображение по классам"
             )
         if st.button('Скрыть EDA'):
+            logger.info("Hide EDA button clicked")
             st.session_state['eda_btn_clicked'] = False
             st.experimental_rerun()
 
@@ -184,7 +185,7 @@ if st.button("Создать и обучить модель"):
     response = requests.get(f"{BACKEND_URL}/list_models", timeout=60)
     if not response.status_code == 200:
         st.error(f"Ошибка при получении списка моделей. Код: {response.status_code}")
-        logger.error(f'Model list get error, code: {response.status_code}')
+        logger.error('Model list get error, code: %s', response.status_code)
     else:
         response_json = response.json()
         message = response_json.get("message", "")
@@ -205,7 +206,7 @@ if st.button("Создать и обучить модель"):
                 logger.info(json.loads(response.text)['message'])
             else:
                 st.error(f"Ошибка при создании модели. Код ошибки: {response.status_code}")
-                logger.error(f'Model creation error, code: {response.status_code}')
+                logger.error('Model creation error, code %s', response.status_code)
 
 # 4. Просмотр информации о модели и кривых обучения
 st.header("4. Информация о модели и кривые обучения")
@@ -230,7 +231,7 @@ if st.button("Получить информацию о моделях"):
 
     else:
         st.error(f"Ошибка при получении списка моделей. Код: {response.status_code}")
-        logger.error(f'Get model info error, code: {response.status_code}')
+        logger.error('Get model info error, code: %s', response.status_code)
 
 # Only show multiselect if we have a non-empty list of models
 if st.session_state.list_models:
@@ -307,7 +308,7 @@ if st.button("Начать Инференс"):
         st.session_state.list_models_inference = list_models_inference
     else:
         st.error(f"Ошибка при получении списка моделей. Код: {response.status_code}")
-        logger.error(f'Get model list error, code: {response.status_codeaa}')
+        logger.error('Get model list error, code: %s', response.status_code)
 
 # Only show multiselect if we have a non-empty list of models
 if st.session_state.list_models_inference:
