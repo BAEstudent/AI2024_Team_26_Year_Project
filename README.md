@@ -15,7 +15,7 @@
 
 
 
->## Demosntration of MVP work
+>## Demonstration of MVP work
 >### Uploading dataset
 >![](assets/fit.gif)
 >### EDA view
