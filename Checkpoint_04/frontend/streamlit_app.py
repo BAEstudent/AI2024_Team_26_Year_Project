@@ -35,8 +35,8 @@ st.title("Машинное Обучение Сервис")
 # 1. Загрузка датасета
 # 1. Upload the ZIP file
 st.header("1. Загрузка Данных")
-uploaded_zip = st.file_uploader("""Загрузите ZIP файл с фото формата jpg
-                                и файлом меток классов этих фото в формате
+uploaded_zip = st.file_uploader("""Загрузите ZIP файл, содержащий до 5 фото формата jpg
+                                и файл меток классов этих фото в формате
                                 csv с колонками pic_name и label.""", type="zip")
 
 if uploaded_zip is not None:
