@@ -12,3 +12,19 @@
 >- Палагин Иван Дмитриевич (@n0gr1m)
 >- Сидельников Платон Павлович (@platonsidelnikov)
 >- Юдайкин Кирилл Вячеславович (@Kirill_Yudaykin)
+
+
+
+>## Demosntration of MVP work
+>### Uploading dataset
+>![](assets/fit.gif)
+>### EDA view
+>![](assets/EDA.gif)
+>### Creating new model
+>![](assets/learn_full.gif)
+>### Getting information about created models
+>![](assets/stats.gif)
+>### Inference
+>![](assets/inference.gif)
+>### Deleting created models
+>![](assets/delete.gif)
