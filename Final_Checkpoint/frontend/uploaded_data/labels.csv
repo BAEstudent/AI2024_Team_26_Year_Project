@@ -1,0 +1,4 @@
+,lesion_id,pic_name,label,dx_type,age,sex,localization,dataset
+1509,HAMTEST_0001107,ISIC_0036062,0,histo,70.0,female,face,vidir_modern
+1510,HAMTEST_0001221,ISIC_0036063,2,consensus,,unknown,unknown,external
+1511,HAMTEST_0001222,ISIC_0036064,1,histo,,unknown,unknown,external
